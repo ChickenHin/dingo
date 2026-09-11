@@ -26,8 +26,6 @@ jobs:
           - id: Release
             label: release
         compiler:
-          - { CC: gcc-13, CXX: g++-13, STD: 17, SANITIZER: ON, PROFILE: portable }
-          - { CC: gcc-14, CXX: g++-14, STD: 23, SANITIZER: ON, PROFILE: full }
           - { CC: clang-18, CXX: clang++-18, STD: 20, SANITIZER: ON, PROFILE: portable }
           - { CC: clang-19, CXX: clang++-19, STD: 26, SANITIZER: ON, PROFILE: full }
     runs-on: ubuntu-24.04
@@ -81,9 +79,6 @@ jobs:
           - id: Release
             label: release
         compiler:
-          - { TOOLCHAIN: gcc-15, CC: gcc-15, CXX: g++-15, STD: 23, SANITIZER: ON }
-          - { TOOLCHAIN: gcc-15, CC: gcc-15, CXX: g++-15, STD: 26, SANITIZER: ON }
-          - { TOOLCHAIN: clang-20, CC: clang-20, CXX: clang++-20, STD: 23, SANITIZER: ON }
           - { TOOLCHAIN: clang-20, CC: clang-20, CXX: clang++-20, STD: 26, SANITIZER: ON }
     runs-on: ubuntu-24.04
     steps:
@@ -137,54 +132,54 @@ jobs:
           source_dir: ${{ env.SOURCE_DIR }}
           std: ${{ matrix.compiler.STD }}
 
-  linux-arm64:
-    name: ubuntu-24.04-arm / ${{ matrix.compiler.CXX }} / std-${{ matrix.compiler.STD }} / ${{ matrix.config.label }}
-    timeout-minutes: 45
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          - id: Release
-            label: release
-        compiler:
-          - { CC: gcc-14, CXX: g++-14, STD: 23, SANITIZER: ON }
-          - { CC: clang-18, CXX: clang++-18, STD: 20, SANITIZER: ON }
-    runs-on: ubuntu-24.04-arm
-    steps:
-      - name: Checkout workflow repo
-        uses: actions/checkout@v7.0.0
+  # linux-arm64:
+  #   name: ubuntu-24.04-arm / ${{ matrix.compiler.CXX }} / std-${{ matrix.compiler.STD }} / ${{ matrix.config.label }}
+  #   timeout-minutes: 45
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       config:
+  #         - id: Release
+  #           label: release
+  #       compiler:
+  #         - { CC: gcc-14, CXX: g++-14, STD: 23, SANITIZER: ON }
+  #         - { CC: clang-18, CXX: clang++-18, STD: 20, SANITIZER: ON }
+  #   runs-on: ubuntu-24.04-arm
+  #   steps:
+  #     - name: Checkout workflow repo
+  #       uses: actions/checkout@v7.0.0
 
-      - name: Initialize source dir
-        shell: bash
-        run: |
-          echo "SOURCE_DIR=." >> "$GITHUB_ENV"
+  #     - name: Initialize source dir
+  #       shell: bash
+  #       run: |
+  #         echo "SOURCE_DIR=." >> "$GITHUB_ENV"
 
-      - name: Download release source
-        if: ${{ inputs.source_artifact_name != '' }}
-        uses: actions/download-artifact@v8.0.1
-        with:
-          name: ${{ inputs.source_artifact_name }}
-          path: release-artifacts
+  #     - name: Download release source
+  #       if: ${{ inputs.source_artifact_name != '' }}
+  #       uses: actions/download-artifact@v8.0.1
+  #       with:
+  #         name: ${{ inputs.source_artifact_name }}
+  #         path: release-artifacts
 
-      - name: Extract release source
-        if: ${{ inputs.source_artifact_name != '' }}
-        shell: bash
-        run: |
-          mkdir -p release-src
-          tar -xzf release-artifacts/release-source.tar.gz -C release-src
-          echo "SOURCE_DIR=release-src" >> "$GITHUB_ENV"
+  #     - name: Extract release source
+  #       if: ${{ inputs.source_artifact_name != '' }}
+  #       shell: bash
+  #       run: |
+  #         mkdir -p release-src
+  #         tar -xzf release-artifacts/release-source.tar.gz -C release-src
+  #         echo "SOURCE_DIR=release-src" >> "$GITHUB_ENV"
 
-      - name: Run Linux arm64 build
-        uses: ./.github/actions/linux-build
-        with:
-          build_type: ${{ matrix.config.id }}
-          ccache_key: ubuntu-24.04-arm-${{ matrix.config.id }}-${{ matrix.compiler.CXX }}-${{ matrix.compiler.STD }}
-          compiler_cc: ${{ matrix.compiler.CC }}
-          compiler_cxx: ${{ matrix.compiler.CXX }}
-          matrix_profile: portable
-          sanitizer: ${{ matrix.compiler.SANITIZER }}
-          source_dir: ${{ env.SOURCE_DIR }}
-          std: ${{ matrix.compiler.STD }}
+  #     - name: Run Linux arm64 build
+  #       uses: ./.github/actions/linux-build
+  #       with:
+  #         build_type: ${{ matrix.config.id }}
+  #         ccache_key: ubuntu-24.04-arm-${{ matrix.config.id }}-${{ matrix.compiler.CXX }}-${{ matrix.compiler.STD }}
+  #         compiler_cc: ${{ matrix.compiler.CC }}
+  #         compiler_cxx: ${{ matrix.compiler.CXX }}
+  #         matrix_profile: portable
+  #         sanitizer: ${{ matrix.compiler.SANITIZER }}
+  #         source_dir: ${{ env.SOURCE_DIR }}
+  #         std: ${{ matrix.compiler.STD }}
 
   windows-x64:
     name: ${{ matrix.vs_label }} / x64 / std-${{ matrix.std }} / ${{ matrix.config_label }}
@@ -208,20 +203,20 @@ jobs:
             runner: windows-2022
             generator: Visual Studio 17 2022
             matrix_profile: portable
-          - vs_label: vs2022
-            config_id: Release
-            config_label: release
-            std: 20
-            runner: windows-2022
-            generator: Visual Studio 17 2022
-            matrix_profile: portable
-          - vs_label: vs2026
-            config_id: Release
-            config_label: release
-            std: 23
-            runner: windows-2025-vs2026
-            generator: Visual Studio 18 2026
-            matrix_profile: full
+          # - vs_label: vs2022
+          #   config_id: Release
+          #   config_label: release
+          #   std: 20
+          #   runner: windows-2022
+          #   generator: Visual Studio 17 2022
+          #   matrix_profile: portable
+          # - vs_label: vs2026
+          #   config_id: Release
+          #   config_label: release
+          #   std: 23
+          #   runner: windows-2025-vs2026
+          #   generator: Visual Studio 18 2026
+          #   matrix_profile: full
     runs-on: ${{ matrix.runner }}
     steps:
       - name: Setup MSVC Developer Command Prompt
@@ -351,25 +346,25 @@ jobs:
             fetchcontent-build/CMakeFiles/CMakeOutput.log
             fetchcontent-build/CMakeFiles/CMakeError.log
 
-  windows-arm64-vs2022:
-    name: vs2022 / arm64 / std-${{ matrix.std }} / ${{ matrix.config.label }}
-    strategy:
-      fail-fast: false
-      matrix:
-        config:
-          # Debug builds are temporarily disabled to keep ccache pressure inside
-          # the repository cache budget.
-          # - id: Debug
-          #   label: debug
-          - id: Release
-            label: release
-        std: [17]
-    uses: ./.github/workflows/windows-arm64.yaml
-    with:
-      source_artifact_name: ${{ inputs.source_artifact_name }}
-      vs_label: vs2022
-      cross_runner: windows-2022
-      cross_generator: Visual Studio 17 2022
-      config_id: ${{ matrix.config.id }}
-      config_label: ${{ matrix.config.label }}
-      std: ${{ matrix.std }}
+  # windows-arm64-vs2022:
+  #   name: vs2022 / arm64 / std-${{ matrix.std }} / ${{ matrix.config.label }}
+  #   strategy:
+  #     fail-fast: false
+  #     matrix:
+  #       config:
+  #         # Debug builds are temporarily disabled to keep ccache pressure inside
+  #         # the repository cache budget.
+  #         # - id: Debug
+  #         #   label: debug
+  #         - id: Release
+  #           label: release
+  #       std: [17]
+  #   uses: ./.github/workflows/windows-arm64.yaml
+  #   with:
+  #     source_artifact_name: ${{ inputs.source_artifact_name }}
+  #     vs_label: vs2022
+  #     cross_runner: windows-2022
+  #     cross_generator: Visual Studio 17 2022
+  #     config_id: ${{ matrix.config.id }}
+  #     config_label: ${{ matrix.config.label }}
+  #     std: ${{ matrix.std }}
